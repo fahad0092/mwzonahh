@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب الموزونة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f0f0;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-group label {
+            margin: 0 10px;
+        }
+        .input-group input[type="text"] {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>حساب الموزونة</h1>
+    <div class="input-group">
+        <label for="qiyas">درجة القدرات:</label>
+        <input type="text" id="qiyas" placeholder="أدخل درجة القدرات الكلية">
+        <label for="qiyasPercentage">النسبة المئوية:</label>
+        <input type="text" id="qiyasPercentage" placeholder="أدخل النسبة التي تطلبها الجامعة">
+    </div>
+    <div class="input-group">
+        <label for="secondary">درجة الثانوي:</label>
+        <input type="text" id="secondary" placeholder="أدخل درجة الثانوي الكلية">
+        <label for="secondaryPercentage">النسبة المئوية:</label>
+        <input type="text" id="secondaryPercentage" placeholder="أدخل النسبة التي تطلبها الجامعة">
+    </div>
+    <div class="input-group">
+        <label for="tahsili">درجة التحصيلي:</label>
+        <input type="text" id="tahsili" placeholder="أدخل درجة الثانوي الكلية">
+        <label for="tahsiliPercentage">النسبة المئوية:</label>
+        <input type="text" id="tahsiliPercentage" placeholder="أدخل النسبة التي تطلبها الجامعة">
+    </div>
+    <button onclick="calculate()">احسب</button>
+    <h2 id="result"></h2>
+
+    <script>
+        function replaceArabicNumbers(str) {
+            const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+            const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            for (let i = 0; i < 10; i++) {
+                str = str.replace(arabicNumbers[i], englishNumbers[i]);
+            }
+            return str;
+        }
+
+        function saveInputs() {
+            const inputs = {
+                secondary: document.getElementById('secondary').value,
+                secondaryPercentage: document.getElementById('secondaryPercentage').value,
+                qiyas: document.getElementById('qiyas').value,
+                qiyasPercentage: document.getElementById('qiyasPercentage').value,
+                tahsili: document.getElementById('tahsili').value,
+                tahsiliPercentage: document.getElementById('tahsiliPercentage').value
+            };
+            localStorage.setItem('gradesInputs', JSON.stringify(inputs));
+        }
+
+        function loadInputs() {
+            const inputs = JSON.parse(localStorage.getItem('gradesInputs'));
+            if (inputs) {
+                document.getElementById('secondary').value = inputs.secondary;
+                document.getElementById('secondaryPercentage').value = inputs.secondaryPercentage;
+                document.getElementById('qiyas').value = inputs.qiyas;
+                document.getElementById('qiyasPercentage').value = inputs.qiyasPercentage;
+                document.getElementById('tahsili').value = inputs.tahsili;
+                document.getElementById('tahsiliPercentage').value = inputs.tahsiliPercentage;
+            }
+        }
+
+        function calculate() {
+            saveInputs();
+
+            const secondary = parseFloat(replaceArabicNumbers(document.getElementById('secondary').value.replace(',', '.')));
+            const secondaryPercentage = parseFloat(replaceArabicNumbers(document.getElementById('secondaryPercentage').value.replace(',', '.')));
+            const qiyas = parseFloat(replaceArabicNumbers(document.getElementById('qiyas').value.replace(',', '.')));
+            const qiyasPercentage = parseFloat(replaceArabicNumbers(document.getElementById('qiyasPercentage').value.replace(',', '.')));
+            const tahsili = parseFloat(replaceArabicNumbers(document.getElementById('tahsili').value.replace(',', '.')));
+            const tahsiliPercentage = parseFloat(replaceArabicNumbers(document.getElementById('tahsiliPercentage').value.replace(',', '.')));
+
+            if (isNaN(secondary) || isNaN(secondaryPercentage) || isNaN(qiyas) || isNaN(qiyasPercentage) || isNaN(tahsili) || isNaN(tahsiliPercentage)) {
+                document.getElementById('result').textContent = 'يرجى إدخال قيم صحيحة.';
+                return;
+            }
+
+            const totalPercentage = secondaryPercentage + qiyasPercentage + tahsiliPercentage;
+
+            if (totalPercentage !== 100) {
+                document.getElementById('result').textContent = 'يجب أن يكون مجموع النسب 100٪.';
+                return;
+            }
+
+            const secondaryResult = secondary * (secondaryPercentage / 100);
+            const qiyasResult = qiyas * (qiyasPercentage / 100);
+            const tahsiliResult = tahsili * (tahsiliPercentage / 100);
+
+            const finalResult = secondaryResult + qiyasResult + tahsiliResult;
+
+            document.getElementById('result').textContent = `المعدل النهائي هو: ${finalResult}، وفقك الله`;
+        }
+
+        window.onload = loadInputs;
+    </script>
+</body>
+</html>
